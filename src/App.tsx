@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ChefHat, Plus, X, Loader2 } from 'lucide-react';
 
 const App = () => {
-  const [selectedIngredients, setSelectedIngredients] = useState([]);
-  const [customIngredient, setCustomIngredient] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [generatedRecipe, setGeneratedRecipe] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [selectedIngredients, setSelectedIngredients] = useState<string[]>([]);
+  const [customIngredient, setCustomIngredient] = useState<string>('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [generatedRecipe, setGeneratedRecipe] = useState<string>('');
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // よく使う食材のボタン（カテゴリー順・使用頻度順）
   const commonIngredients = [
@@ -29,14 +29,14 @@ const App = () => {
   ];
 
   // 食材を追加
-  const addIngredient = (ingredient) => {
+  const addIngredient = (ingredient: string) => {
     if (!selectedIngredients.includes(ingredient)) {
       setSelectedIngredients([...selectedIngredients, ingredient]);
     }
   };
 
   // 食材を削除
-  const removeIngredient = (ingredient) => {
+  const removeIngredient = (ingredient: string) => {
     setSelectedIngredients(selectedIngredients.filter(item => item !== ingredient));
   };
 
@@ -335,8 +335,8 @@ const App = () => {
                     const lines = recipe.split('\n').filter(line => line.trim());
 
                     let recipeName = '';
-                    let ingredients = [];
-                    let instructions = [];
+                    let ingredients: string[] = [];
+                    let instructions: string[] = [];
                     let currentSection = '';
 
                     lines.forEach(line => {
