@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>れしぴくん - AIレシピ提案アプリ</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
+        background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 50%, #fff7ed 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 900px;
+        width: 100%;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 48px;
+        animation: fadeInDown 0.6s ease-out;
+      }
+
+      .logo {
+        font-size: 48px;
+        margin-bottom: 12px;
+      }
+
+      .title {
+        font-size: 32px;
+        font-weight: 800;
+        color: #292524;
+        margin-bottom: 8px;
+        letter-spacing: 0.5px;
+      }
+
+      .subtitle {
+        font-size: 16px;
+        color: #78716c;
+      }
+
+      .options {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        animation: fadeInUp 0.6s ease-out 0.2s both;
+      }
+
+      .option-card {
+        background: white;
+        border-radius: 20px;
+        padding: 32px 28px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        cursor: pointer;
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .option-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 6px;
+        background: linear-gradient(90deg, #f97316 0%, #ea580c 100%);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+      }
+
+      .option-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+      }
+
+      .option-card:hover::before {
+        transform: scaleX(1);
+      }
+
+      .option-icon {
+        font-size: 56px;
+        margin-bottom: 16px;
+        display: block;
+      }
+
+      .option-title {
+        font-size: 22px;
+        font-weight: 700;
+        color: #292524;
+        margin-bottom: 12px;
+      }
+
+      .option-description {
+        font-size: 14px;
+        color: #78716c;
+        line-height: 1.6;
+        margin-bottom: 20px;
+        flex-grow: 1;
+      }
+
+      .option-features {
+        list-style: none;
+        margin-bottom: 24px;
+      }
+
+      .option-features li {
+        font-size: 13px;
+        color: #57534e;
+        padding: 6px 0;
+        padding-left: 20px;
+        position: relative;
+      }
+
+      .option-features li::before {
+        content: '✓';
+        position: absolute;
+        left: 0;
+        color: #f97316;
+        font-weight: bold;
+      }
+
+      .option-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 16px;
+      }
+
+      .badge-ai {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        color: #92400e;
+      }
+
+      .badge-demo {
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        color: #1e3a8a;
+      }
+
+      .option-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 14px 24px;
+        background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+        color: white;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 15px;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+      }
+
+      .option-card:hover .option-button {
+        background: linear-gradient(135deg, #ea580c 0%, #dc2626 100%);
+        transform: translateX(4px);
+      }
+
+      .arrow {
+        transition: transform 0.3s ease;
+      }
+
+      .option-card:hover .arrow {
+        transform: translateX(4px);
+      }
+
+      @keyframes fadeInDown {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 768px) {
+        .options {
+          grid-template-columns: 1fr;
+          gap: 20px;
+        }
+
+        .title {
+          font-size: 28px;
+        }
+
+        .logo {
+          font-size: 40px;
+        }
+
+        .option-card {
+          padding: 28px 24px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="logo">👨‍🍳</div>
+        <h1 class="title">れしぴくん</h1>
+        <p class="subtitle">あなたの食材から、おいしいレシピを提案します</p>
+      </div>
+
+      <div class="options">
+        <!-- AI版 -->
+        <a href="/ai.html" class="option-card">
+          <span class="option-badge badge-ai">🔐 ログイン必要</span>
+          <span class="option-icon">🤖</span>
+          <h2 class="option-title">AIバージョン</h2>
+          <p class="option-description">
+            Claude AIが食材の相性を考えて、本格的なレシピを提案します。
+          </p>
+          <ul class="option-features">
+            <li>AIが食材の組み合わせを判断</li>
+            <li>多彩なレシピバリエーション</li>
+            <li>初回のみClaude.aiアカウント作成が必要</li>
+          </ul>
+          <div class="option-button">
+            使ってみる
+            <span class="arrow">→</span>
+          </div>
+        </a>
+
+        <!-- デモ版 -->
+        <a href="/demo.html" class="option-card">
+          <span class="option-badge badge-demo">✨ すぐ使える</span>
+          <span class="option-icon">📱</span>
+          <h2 class="option-title">デモバージョン</h2>
+          <p class="option-description">
+            ログイン不要で、すぐに動作を体験できます。
+          </p>
+          <ul class="option-features">
+            <li>ログイン・登録不要</li>
+            <li>すぐに動作を確認できる</li>
+            <li>アプリの使い方を試せる</li>
+          </ul>
+          <div class="option-button">
+            見てみる
+            <span class="arrow">→</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </body>
+</html>
