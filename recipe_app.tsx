@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChefHat, Plus, X, Loader2 } from 'lucide-react';
 
 const ReshipiKunApp = () => {
@@ -7,6 +7,12 @@ const ReshipiKunApp = () => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [generatedRecipe, setGeneratedRecipe] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isClaudeAvailable, setIsClaudeAvailable] = useState(null);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    setIsClaudeAvailable(typeof window !== 'undefined' && !!window.claude);
+  }, []);
 
   // よく使う食材のボタン（カテゴリー順・使用頻度順）
   const commonIngredients = [
@@ -51,10 +57,11 @@ const ReshipiKunApp = () => {
   // レシピを生成
   const generateRecipe = async () => {
     if (selectedIngredients.length === 0 || !selectedCategory) {
-      alert('食材と料理カテゴリーを選択してください！');
+      setError('食材と料理カテゴリーを選択してください！');
       return;
     }
 
+    setError('');
     setIsLoading(true);
     try {
       const prompt = `
@@ -101,7 +108,7 @@ markdown記法は使用せず、普通の文章で回答してください。
       setGeneratedRecipe(response);
     } catch (error) {
       console.error('レシピ生成エラー:', error);
-      alert('レシピの生成に失敗しました。もう一度試してください。');
+      setError('レシピの生成に失敗しました。もう一度試してください。');
     } finally {
       setIsLoading(false);
     }
@@ -114,6 +121,60 @@ markdown記法は使用せず、普通の文章で回答してください。
     setSelectedCategory('');
     setGeneratedRecipe('');
   };
+
+  // ログイン状態確認中
+  if (isClaudeAvailable === null) {
+    return null;
+  }
+
+  // 未ログイン時のゲート画面
+  if (isClaudeAvailable === false) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-orange-100 flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full text-center">
+          <ChefHat className="mx-auto mb-4 text-orange-400" size={52} />
+          <h1 className="text-2xl font-bold text-gray-800 mb-1">れしぴくん</h1>
+          <p className="text-gray-500 text-sm mb-6">選んだ食材からおいしいレシピを提案します</p>
+
+          <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6 text-left">
+            <p className="text-orange-800 font-semibold mb-2 flex items-center gap-2">
+              <span>🔐</span> ログインが必要です
+            </p>
+            <p className="text-gray-600 text-sm leading-relaxed">
+              このアプリはClaude AIを使ってレシピを提案します。ご利用には <strong>Claude.ai へのログイン</strong>が必要です。
+            </p>
+          </div>
+
+          <ol className="text-left text-sm text-gray-600 mb-6 space-y-2 bg-gray-50 rounded-lg p-4">
+            <li className="flex items-start gap-2">
+              <span className="bg-orange-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">1</span>
+              <span>下のボタンから <strong>Claude.ai</strong> を開く</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="bg-orange-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">2</span>
+              <span>アカウント作成またはログインする（無料）</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="bg-orange-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">3</span>
+              <span>ログイン後、このページに戻ってきてください</span>
+            </li>
+          </ol>
+
+          <a
+            href="https://claude.ai"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block bg-gradient-to-r from-orange-600 to-orange-700 text-white font-bold py-3 px-8 rounded-lg hover:from-orange-700 hover:to-orange-800 transition-all shadow-md"
+          >
+            Claude.ai でログインする →
+          </a>
+          <p className="text-gray-400 text-xs mt-4">
+            ※ 無料プランでもご利用いただけます
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-orange-100 p-4">
@@ -215,6 +276,13 @@ markdown記法は使用せず、普通の文章で回答してください。
                 ))}
               </div>
             </div>
+
+            {/* エラーメッセージ */}
+            {error && (
+              <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">
+                ⚠️ {error}
+              </div>
+            )}
 
             {/* 生成ボタン */}
             <div className="space-y-3">
