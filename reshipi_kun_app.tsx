@@ -124,7 +124,7 @@ markdown記法は使用せず、普通の文章で回答してください。
             <ChefHat className="text-orange-600 mr-3" size={40} />
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 whitespace-nowrap">れしぴくん</h1>
           </div>
-          <p className="text-gray-600 text-sm sm:text-base">指定した食材を使ったおいしいレシピをAIが提案します</p>
+          <p className="text-gray-600 text-sm sm:text-base">選んだ食材からおいしいレシピを提案します</p>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8">
