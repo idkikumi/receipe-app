@@ -11,6 +11,7 @@ export default defineConfig({
         main: resolve(__dirname, 'index.html'),
         option1: resolve(__dirname, 'index-option1.html'),
         option2: resolve(__dirname, 'index-option2.html'),
+        final: resolve(__dirname, 'index-final.html'),
         ai: resolve(__dirname, 'ai.html'),
         demo: resolve(__dirname, 'demo.html'),
       },
