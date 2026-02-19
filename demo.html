@@ -3,24 +3,48 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>れしぴくん - デモバージョン</title>
+    <script src="https://cdn.jsdelivr.net/npm/tailwindcss-cdn@3.4.1/tailwindcss.js"></script>
     <style>
       * {
-        margin: 0;
-        padding: 0;
+        -webkit-box-sizing: border-box;
         box-sizing: border-box;
       }
-
       body {
         margin: 0;
         padding: 0;
-        overflow: hidden;
+        overflow-x: hidden;
       }
-
-      #root {
-        width: 100vw;
-        height: 100vh;
+      /* カスタムスクロールバー */
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 8px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: #fef3c7;
+        border-radius: 10px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #fbbf24;
+        border-radius: 10px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #f59e0b;
+      }
+      /* フェードインアニメーション */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .animate-fadeIn {
+        animation: fadeIn 0.5s ease-out forwards;
+        opacity: 0;
       }
     </style>
   </head>
