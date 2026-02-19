@@ -185,7 +185,7 @@ const App = () => {
             <ChefHat className="text-orange-600 mr-2 sm:mr-3" size={32} />
             <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-800">れしぴくん</h1>
           </div>
-          <p className="text-gray-600 text-xs sm:text-sm md:text-base px-2 sm:px-4">指定した食材を使ったおいしいレシピをAIが提案します</p>
+          <p className="text-gray-600 text-xs sm:text-sm md:text-base px-2 sm:px-4">選んだ食材からおいしいレシピを提案します</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6 lg:gap-8 lg:items-start">
