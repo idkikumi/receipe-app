@@ -127,7 +127,7 @@ markdown記法は使用せず、普通の文章で回答してください。
           <p className="text-gray-600 text-xs sm:text-sm md:text-base whitespace-nowrap">選んだ食材からおいしいレシピを提案します</p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-8">
+        <div className="flex flex-col gap-8">
           {/* 左側: 食材選択 */}
           <div className="bg-white rounded-xl shadow-lg p-6">
             <h2 className="text-xl font-semibold mb-4 text-gray-800">🥬 食材を選択</h2>
