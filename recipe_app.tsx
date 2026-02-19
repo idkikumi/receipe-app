@@ -78,7 +78,7 @@ ${selectedCategory === '前菜' ? '前菜として軽めで食欲をそそる、
 以下の形式で3つのレシピを提案してください：
 
 【レシピ1】
-料理名: 
+料理名:
 材料（2人前）:
 - 各材料の分量を具体的に記載
 作り方:
@@ -86,7 +86,7 @@ ${selectedCategory === '前菜' ? '前菜として軽めで食欲をそそる、
 2. 初心者でも作れるよう詳しく説明
 
 【レシピ2】
-料理名: 
+料理名:
 材料（2人前）:
 - 各材料の分量を具体的に記載
 作り方:
@@ -94,7 +94,7 @@ ${selectedCategory === '前菜' ? '前菜として軽めで食欲をそそる、
 2. 初心者でも作れるよう詳しく説明
 
 【レシピ3】
-料理名: 
+料理名:
 材料（2人前）:
 - 各材料の分量を具体的に記載
 作り方:
@@ -104,11 +104,23 @@ ${selectedCategory === '前菜' ? '前菜として軽めで食欲をそそる、
 markdown記法は使用せず、普通の文章で回答してください。
 `;
 
-      const response = await window.claude.complete(prompt);
+      const loginErrorMsg = 'レシピを生成できませんでした。claude.ai にログインしているか確認してから、もう一度お試しください。';
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('TIMEOUT')), 15000)
+      );
+
+      const response = await Promise.race([
+        window.claude.complete(prompt),
+        timeoutPromise
+      ]);
+      if (!response) {
+        setError(loginErrorMsg);
+        return;
+      }
       setGeneratedRecipe(response);
     } catch (error) {
       console.error('レシピ生成エラー:', error);
-      setError('レシピの生成に失敗しました。もう一度試してください。');
+      setError('レシピを生成できませんでした。claude.ai にログインしているか確認してから、もう一度お試しください。');
     } finally {
       setIsLoading(false);
     }
@@ -130,7 +142,7 @@ markdown記法は使用せず、普通の文章で回答してください。
   // 未ログイン時のゲート画面
   if (isClaudeAvailable === false) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-orange-100 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-orange-100 flex items-center justify-center p-4 overscroll-none">
         <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full text-center">
           <ChefHat className="mx-auto mb-4 text-orange-400" size={52} />
           <h1 className="text-2xl font-bold text-gray-800 mb-1">れしぴくん</h1>
@@ -177,7 +189,7 @@ markdown記法は使用せず、普通の文章で回答してください。
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-orange-100 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-orange-100 p-4 overscroll-none">
       <div className="max-w-4xl mx-auto">
         {/* ヘッダー */}
         <div className="text-center mb-8">
