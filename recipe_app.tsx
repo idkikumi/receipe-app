@@ -104,19 +104,7 @@ ${selectedCategory === '前菜' ? '前菜として軽めで食欲をそそる、
 markdown記法は使用せず、普通の文章で回答してください。
 `;
 
-      const loginErrorMsg = 'レシピを生成できませんでした。claude.ai にログインしているか確認してから、もう一度お試しください。';
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('TIMEOUT')), 15000)
-      );
-
-      const response = await Promise.race([
-        window.claude.complete(prompt),
-        timeoutPromise
-      ]);
-      if (!response) {
-        setError(loginErrorMsg);
-        return;
-      }
+      const response = await window.claude.complete(prompt);
       setGeneratedRecipe(response);
     } catch (error) {
       console.error('レシピ生成エラー:', error);
