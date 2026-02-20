@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { ChefHat, Plus, X, Loader2 } from 'lucide-react';
 
 const ReshipiKunApp = () => {
@@ -7,12 +7,8 @@ const ReshipiKunApp = () => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [generatedRecipe, setGeneratedRecipe] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isClaudeAvailable, setIsClaudeAvailable] = useState(null);
+  const [showSplash, setShowSplash] = useState(true);
   const [error, setError] = useState('');
-
-  useEffect(() => {
-    setIsClaudeAvailable(typeof window !== 'undefined' && !!window.claude);
-  }, []);
 
   // よく使う食材のボタン（カテゴリー順・使用頻度順）
   const commonIngredients = [
@@ -122,13 +118,8 @@ markdown記法は使用せず、普通の文章で回答してください。
     setGeneratedRecipe('');
   };
 
-  // ログイン状態確認中
-  if (isClaudeAvailable === null) {
-    return null;
-  }
-
-  // 未ログイン時のゲート画面
-  if (isClaudeAvailable === false) {
+  // スプラッシュ画面（ログイン案内）
+  if (showSplash) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-orange-100 flex items-center justify-center p-4 overscroll-none">
         <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full text-center">
@@ -137,37 +128,46 @@ markdown記法は使用せず、普通の文章で回答してください。
           <p className="text-gray-500 text-sm mb-6">選んだ食材からおいしいレシピを提案します</p>
 
           <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6 text-left">
-            <p className="text-orange-800 font-semibold mb-2 flex items-center gap-2">
-              <span>🔐</span> ログインが必要です
-            </p>
+            <p className="text-orange-800 font-semibold mb-2">🔐 ログインが必要です</p>
             <p className="text-gray-600 text-sm leading-relaxed">
               このアプリはClaude AIを使ってレシピを提案します。ご利用には <strong>Claude.ai へのログイン</strong>が必要です。
             </p>
           </div>
 
-          <ol className="text-left text-sm text-gray-600 mb-6 space-y-2 bg-gray-50 rounded-lg p-4">
-            <li className="flex items-start gap-2">
-              <span className="bg-orange-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">1</span>
-              <span>下のボタンから <strong>Claude.ai</strong> を開く</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="bg-orange-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">2</span>
-              <span>アカウント作成またはログインする（無料）</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="bg-orange-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">3</span>
-              <span>ログイン後、このページに戻ってきてください</span>
-            </li>
-          </ol>
+          <div className="text-left text-sm text-gray-600 mb-6 bg-gray-50 rounded-lg p-4 space-y-3">
+            <p className="font-medium text-gray-700">ログインしていない場合：</p>
+            <ol className="space-y-2 pl-1">
+              <li className="flex items-start gap-2">
+                <span className="bg-orange-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">1</span>
+                <span>下の「Claude.ai でログインする」ボタンをタップ</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="bg-orange-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">2</span>
+                <span>アカウント作成またはログインする（無料）</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="bg-orange-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">3</span>
+                <span>ログイン後、このページに戻ってきてアプリを開く</span>
+              </li>
+            </ol>
+          </div>
 
-          <a
-            href="https://claude.ai"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block bg-gradient-to-r from-orange-600 to-orange-700 text-white font-bold py-3 px-8 rounded-lg hover:from-orange-700 hover:to-orange-800 transition-all shadow-md"
-          >
-            Claude.ai でログインする →
-          </a>
+          <div className="space-y-3">
+            <button
+              onClick={() => setShowSplash(false)}
+              className="w-full bg-gradient-to-r from-orange-600 to-orange-700 text-white font-bold py-3 px-8 rounded-lg hover:from-orange-700 hover:to-orange-800 transition-all shadow-md"
+            >
+              ✅ ログイン済み・アプリを開く
+            </button>
+            <a
+              href="https://claude.ai"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block w-full border-2 border-orange-300 text-orange-700 font-medium py-3 px-8 rounded-lg hover:bg-orange-50 transition-all text-center"
+            >
+              Claude.ai でログインする →
+            </a>
+          </div>
           <p className="text-gray-400 text-xs mt-4">
             ※ 無料プランでもご利用いただけます
           </p>
