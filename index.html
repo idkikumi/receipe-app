@@ -425,6 +425,91 @@
         color: #8B7355;
         margin-top: 16px;
       }
+
+      /* Action section (replaces ai-button-container) */
+      .action-section {
+        padding: 28px 20px 24px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0;
+      }
+
+      .action-label {
+        font-size: 13px;
+        color: #8B7355;
+        margin-bottom: 16px;
+        text-align: center;
+      }
+
+      .action-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        width: 100%;
+        max-width: 360px;
+      }
+
+      .action-btn-primary {
+        display: block;
+        background: linear-gradient(135deg, #FF8C42 0%, #E07A5F 100%);
+        color: white;
+        font-size: 15px;
+        font-weight: bold;
+        padding: 16px 24px;
+        border-radius: 14px;
+        text-decoration: none;
+        text-align: center;
+        box-shadow: 0 4px 14px rgba(255, 140, 66, 0.35);
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+
+      .action-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(255, 140, 66, 0.45);
+      }
+
+      .action-btn-secondary {
+        display: block;
+        background: white;
+        color: #E07A5F;
+        font-size: 14px;
+        font-weight: 600;
+        padding: 14px 24px;
+        border-radius: 14px;
+        text-decoration: none;
+        text-align: center;
+        border: 2px solid #FFB088;
+        transition: background 0.2s, border-color 0.2s;
+      }
+
+      .action-btn-secondary:hover {
+        background: #FFF4EE;
+        border-color: #E07A5F;
+      }
+
+      .action-note {
+        font-size: 11px;
+        color: #B89880;
+        margin-top: 14px;
+        text-align: center;
+      }
+
+      @media (max-width: 768px) {
+        .action-section {
+          padding: 20px 16px 20px;
+        }
+
+        .action-btn-primary {
+          font-size: 14px;
+          padding: 14px 20px;
+        }
+
+        .action-btn-secondary {
+          font-size: 13px;
+          padding: 12px 20px;
+        }
+      }
     </style>
   </head>
   <body>
@@ -489,37 +574,27 @@
             </div>
           </div>
 
-          <div class="app-frame">
-            <div class="ai-button-container">
-              <div class="ai-button-content">
-                <!-- Chef Hat Icon -->
-                <svg class="chef-hat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z"/>
-                  <line x1="6" y1="17" x2="18" y2="17"/>
-                </svg>
-                <h3 class="ai-title">AIレシピ提案アプリ</h3>
-                <p class="ai-description">
-                  <span class="description-desktop">
-                    Claude AIが食材の相性を考慮した本格的なレシピを提案します。<br>
-                    デスクトップでもモバイルでも最適な表示でご利用いただけます。
-                  </span>
-                  <span class="description-mobile">
-                    Claude AIが食材の相性を考慮した本格的なレシピを提案します。デスクトップでもモバイルでも最適な表示でご利用いただけます。
-                  </span>
-                </p>
-                <a
-                  href="https://claude.ai/public/artifacts/ac8a377d-6434-44b9-9f50-b53347dddb14"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="ai-open-button"
-                >
-                  アプリを開く →
-                </a>
-                <p class="ai-note">
-                  ※ Claude.aiのページが開きます（ログイン済みの場合はすぐに利用可能）
-                </p>
-              </div>
+          <div class="action-section">
+            <p class="action-label">ログイン状況に合わせてお選びください：</p>
+            <div class="action-buttons">
+              <a
+                href="https://claude.ai/public/artifacts/ac8a377d-6434-44b9-9f50-b53347dddb14"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="action-btn-primary"
+              >
+                ✅ ログイン済み・アプリを開く →
+              </a>
+              <a
+                href="https://claude.ai"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="action-btn-secondary"
+              >
+                Claude.ai でログインする →
+              </a>
             </div>
+            <p class="action-note">※ 無料プランでもご利用いただけます</p>
           </div>
         </div>
 
