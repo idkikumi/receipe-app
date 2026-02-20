@@ -547,23 +547,23 @@
 
     <div class="tab-container">
       <div class="tabs">
-        <button class="tab active" data-tab="ai" onclick="switchTab('ai')">
-          <div class="tab-label">
-            <span>AIバージョン</span>
-          </div>
-          <span class="tab-badge badge-login">ログイン必要</span>
-        </button>
-        <button class="tab" data-tab="demo" onclick="switchTab('demo')">
+        <button class="tab active" data-tab="demo" onclick="switchTab('demo')">
           <div class="tab-label">
             <span>デモバージョン</span>
           </div>
           <span class="tab-badge badge-no-login">ログイン不要</span>
         </button>
+        <button class="tab" data-tab="ai" onclick="switchTab('ai')">
+          <div class="tab-label">
+            <span>AIバージョン</span>
+          </div>
+          <span class="tab-badge badge-login">ログイン必要</span>
+        </button>
       </div>
 
       <div class="content-container">
         <!-- AI版 -->
-        <div id="ai-content" class="tab-content active">
+        <div id="ai-content" class="tab-content">
           <div class="info-banner">
             <div class="info-title">
               🔐 Claude AIを使ったレシピ提案
@@ -589,7 +589,7 @@
             <p class="action-label">ログイン状況に合わせてお選びください：</p>
             <div class="action-buttons">
               <a
-                href="https://claude.ai/public/artifacts/c4bea432-082e-4187-a103-c9193c97dda6"
+                href="https://claude.ai/public/artifacts/8c9b765f-4d4a-4b22-88ca-21bf43aa03e1"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="action-btn-primary"
@@ -610,7 +610,7 @@
         </div>
 
         <!-- デモ版 -->
-        <div id="demo-content" class="tab-content">
+        <div id="demo-content" class="tab-content active">
           <div class="demo-banner">
             <div class="info-title">
               ✨ すぐに試せるデモバージョン
