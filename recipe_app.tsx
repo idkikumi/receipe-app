@@ -99,7 +99,13 @@ ${selectedCategory === '前菜' ? '前菜として軽めで食欲をそそる、
 markdown記法は使用せず、普通の文章で回答してください。
 `;
 
-      const response = await window.claude.complete(prompt);
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('TIMEOUT')), 30000)
+      );
+      const response = await Promise.race([
+        window.claude.complete(prompt),
+        timeoutPromise
+      ]);
       setGeneratedRecipe(response);
     } catch (error) {
       console.error('レシピ生成エラー:', error);
