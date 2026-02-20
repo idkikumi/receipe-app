@@ -7,6 +7,7 @@ const ReshipiKunApp = () => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [generatedRecipe, setGeneratedRecipe] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
   // よく使う食材のボタン（カテゴリー順・使用頻度順）
   const commonIngredients = [
@@ -51,10 +52,11 @@ const ReshipiKunApp = () => {
   // レシピを生成
   const generateRecipe = async () => {
     if (selectedIngredients.length === 0 || !selectedCategory) {
-      alert('食材と料理カテゴリーを選択してください！');
+      setError('食材と料理カテゴリーを選択してください！');
       return;
     }
 
+    setError('');
     setIsLoading(true);
     try {
       const prompt = `
@@ -71,7 +73,7 @@ ${selectedCategory === '前菜' ? '前菜として軽めで食欲をそそる、
 以下の形式で3つのレシピを提案してください：
 
 【レシピ1】
-料理名: 
+料理名:
 材料（2人前）:
 - 各材料の分量を具体的に記載
 作り方:
@@ -79,7 +81,7 @@ ${selectedCategory === '前菜' ? '前菜として軽めで食欲をそそる、
 2. 初心者でも作れるよう詳しく説明
 
 【レシピ2】
-料理名: 
+料理名:
 材料（2人前）:
 - 各材料の分量を具体的に記載
 作り方:
@@ -87,7 +89,7 @@ ${selectedCategory === '前菜' ? '前菜として軽めで食欲をそそる、
 2. 初心者でも作れるよう詳しく説明
 
 【レシピ3】
-料理名: 
+料理名:
 材料（2人前）:
 - 各材料の分量を具体的に記載
 作り方:
@@ -97,11 +99,17 @@ ${selectedCategory === '前菜' ? '前菜として軽めで食欲をそそる、
 markdown記法は使用せず、普通の文章で回答してください。
 `;
 
-      const response = await window.claude.complete(prompt);
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('TIMEOUT')), 30000)
+      );
+      const response = await Promise.race([
+        window.claude.complete(prompt),
+        timeoutPromise
+      ]);
       setGeneratedRecipe(response);
     } catch (error) {
       console.error('レシピ生成エラー:', error);
-      alert('レシピの生成に失敗しました。もう一度試してください。');
+      setError('レシピを生成できませんでした。claude.ai にログインしているか確認してから、もう一度お試しください。');
     } finally {
       setIsLoading(false);
     }
@@ -116,7 +124,7 @@ markdown記法は使用せず、普通の文章で回答してください。
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-orange-100 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-orange-100 p-4 overscroll-none">
       <div className="max-w-4xl mx-auto">
         {/* ヘッダー */}
         <div className="text-center mb-8">
@@ -127,7 +135,7 @@ markdown記法は使用せず、普通の文章で回答してください。
           <p className="text-gray-600 text-xs sm:text-sm md:text-base whitespace-nowrap">選んだ食材からおいしいレシピを提案します</p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-8">
+        <div className="flex flex-col gap-8">
           {/* 左側: 食材選択 */}
           <div className="bg-white rounded-xl shadow-lg p-6">
             <h2 className="text-xl font-semibold mb-4 text-gray-800">🥬 食材を選択</h2>
@@ -215,6 +223,13 @@ markdown記法は使用せず、普通の文章で回答してください。
                 ))}
               </div>
             </div>
+
+            {/* エラーメッセージ */}
+            {error && (
+              <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">
+                ⚠️ {error}
+              </div>
+            )}
 
             {/* 生成ボタン */}
             <div className="space-y-3">

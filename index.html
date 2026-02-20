@@ -253,8 +253,8 @@
       }
 
       .app-frame {
-        height: calc(100vh - 200px);
-        min-height: 600px;
+        height: calc(100vh - 280px);
+        min-height: 500px;
       }
 
       iframe {
@@ -262,6 +262,15 @@
         height: 100%;
         border: none;
         display: block;
+      }
+
+      /* Default: Desktop */
+      .description-mobile {
+        display: none;
+      }
+
+      .description-desktop {
+        display: inline;
       }
 
       @media (max-width: 768px) {
@@ -338,8 +347,174 @@
         }
 
         .app-frame {
-          height: calc(100vh - 240px);
-          min-height: 500px;
+          height: calc(100vh - 320px);
+          min-height: 400px;
+        }
+
+        .description-mobile {
+          display: inline;
+        }
+
+        .description-desktop {
+          display: none;
+        }
+
+        .ai-description {
+          text-align: left;
+        }
+      }
+
+      /* AI Button Styles */
+      .ai-button-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        background: linear-gradient(135deg, #fff8ed 0%, #ffe8cc 100%);
+        border-radius: 12px;
+        padding: 8px 20px;
+      }
+
+      .ai-button-content {
+        text-align: center;
+        max-width: 500px;
+      }
+
+      .chef-hat-icon {
+        width: 40px;
+        height: 40px;
+        color: #FF8C42;
+        margin: 0 auto 12px;
+      }
+
+      .ai-title {
+        font-size: 18px;
+        font-weight: bold;
+        color: #8B4513;
+        margin-bottom: 12px;
+      }
+
+      .ai-description {
+        color: #A0522D;
+        margin-bottom: 20px;
+        line-height: 1.6;
+        font-size: 13px;
+      }
+
+      .ai-open-button {
+        display: inline-block;
+        background: linear-gradient(135deg, #FF8C42 0%, #E07A5F 100%);
+        color: white;
+        font-size: 15px;
+        font-weight: bold;
+        padding: 12px 32px;
+        border-radius: 12px;
+        text-decoration: none;
+        box-shadow: 0 4px 12px rgba(255, 140, 66, 0.3);
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+
+      .ai-open-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(255, 140, 66, 0.4);
+      }
+
+      .ai-note {
+        font-size: 11px;
+        color: #8B7355;
+        margin-top: 16px;
+      }
+
+      /* Action section (replaces ai-button-container) */
+      .action-section {
+        padding: 28px 20px 24px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0;
+      }
+
+      .action-chef-hat {
+        width: 48px;
+        height: 48px;
+        color: #FF8C42;
+        margin-bottom: 12px;
+      }
+
+      .action-label {
+        font-size: 13px;
+        color: #8B7355;
+        margin-bottom: 16px;
+        text-align: center;
+      }
+
+      .action-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        width: 100%;
+        max-width: 360px;
+      }
+
+      .action-btn-primary {
+        display: block;
+        background: linear-gradient(135deg, #FF8C42 0%, #E07A5F 100%);
+        color: white;
+        font-size: 15px;
+        font-weight: bold;
+        padding: 16px 24px;
+        border-radius: 14px;
+        text-decoration: none;
+        text-align: center;
+        box-shadow: 0 4px 14px rgba(255, 140, 66, 0.35);
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+
+      .action-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(255, 140, 66, 0.45);
+      }
+
+      .action-btn-secondary {
+        display: block;
+        background: white;
+        color: #E07A5F;
+        font-size: 14px;
+        font-weight: 600;
+        padding: 14px 24px;
+        border-radius: 14px;
+        text-decoration: none;
+        text-align: center;
+        border: 2px solid #FFB088;
+        transition: background 0.2s, border-color 0.2s;
+      }
+
+      .action-btn-secondary:hover {
+        background: #FFF4EE;
+        border-color: #E07A5F;
+      }
+
+      .action-note {
+        font-size: 11px;
+        color: #B89880;
+        margin-top: 14px;
+        text-align: center;
+      }
+
+      @media (max-width: 768px) {
+        .action-section {
+          padding: 20px 16px 20px;
+        }
+
+        .action-btn-primary {
+          font-size: 14px;
+          padding: 14px 20px;
+        }
+
+        .action-btn-secondary {
+          font-size: 13px;
+          padding: 12px 20px;
         }
       }
     </style>
@@ -372,23 +547,23 @@
 
     <div class="tab-container">
       <div class="tabs">
-        <button class="tab active" data-tab="ai" onclick="switchTab('ai')">
-          <div class="tab-label">
-            <span>AIバージョン</span>
-          </div>
-          <span class="tab-badge badge-login">ログイン必要</span>
-        </button>
-        <button class="tab" data-tab="demo" onclick="switchTab('demo')">
+        <button class="tab active" data-tab="demo" onclick="switchTab('demo')">
           <div class="tab-label">
             <span>デモバージョン</span>
           </div>
           <span class="tab-badge badge-no-login">ログイン不要</span>
         </button>
+        <button class="tab" data-tab="ai" onclick="switchTab('ai')">
+          <div class="tab-label">
+            <span>AIバージョン</span>
+          </div>
+          <span class="tab-badge badge-login">ログイン必要</span>
+        </button>
       </div>
 
       <div class="content-container">
         <!-- AI版 -->
-        <div id="ai-content" class="tab-content active">
+        <div id="ai-content" class="tab-content">
           <div class="info-banner">
             <div class="info-title">
               🔐 Claude AIを使ったレシピ提案
@@ -406,18 +581,36 @@
             </div>
           </div>
 
-          <div class="app-frame">
-            <iframe
-              src="https://claude.site/public/artifacts/3c4ea0a2-ce27-4c01-923f-1e6a9eb6a664/embed"
-              title="れしぴくん - AIレシピ提案アプリ"
-              allow="clipboard-write"
-              allowfullscreen>
-            </iframe>
+          <div class="action-section">
+            <svg class="action-chef-hat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z"/>
+              <line x1="6" y1="17" x2="18" y2="17"/>
+            </svg>
+            <p class="action-label">ログイン状況に合わせてお選びください：</p>
+            <div class="action-buttons">
+              <a
+                href="https://claude.ai/public/artifacts/8c9b765f-4d4a-4b22-88ca-21bf43aa03e1"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="action-btn-primary"
+              >
+                ✅ ログイン済み・アプリを開く →
+              </a>
+              <a
+                href="https://claude.ai"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="action-btn-secondary"
+              >
+                Claude.ai でログインする →
+              </a>
+            </div>
+            <p class="action-note">※ 無料プランでもご利用いただけます</p>
           </div>
         </div>
 
         <!-- デモ版 -->
-        <div id="demo-content" class="tab-content">
+        <div id="demo-content" class="tab-content active">
           <div class="demo-banner">
             <div class="info-title">
               ✨ すぐに試せるデモバージョン
