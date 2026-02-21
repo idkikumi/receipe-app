@@ -111,11 +111,11 @@
       }
 
       .tab.active[data-tab="ai"] {
-        background: linear-gradient(135deg, #fffbf0 0%, #fff8ed 100%);
+        background: linear-gradient(135deg, #FFF4E6 0%, #FFE8CC 100%);
       }
 
       .tab.active[data-tab="demo"] {
-        background: linear-gradient(135deg, #FFF4E6 0%, #FFE8CC 100%);
+        background: linear-gradient(135deg, #fffbf0 0%, #fff8ed 100%);
       }
 
       .tab-label {
@@ -172,8 +172,8 @@
       }
 
       .info-banner {
-        background: linear-gradient(135deg, #fffbf0 0%, #fff8ed 100%);
-        border-bottom: 2px solid #FFD4A3;
+        background: linear-gradient(135deg, #FFF4E6 0%, #FFE8CC 100%);
+        border-bottom: 2px solid #FFB088;
         padding: 14px 20px;
       }
 
@@ -220,8 +220,8 @@
       }
 
       .demo-banner {
-        background: linear-gradient(135deg, #FFF4E6 0%, #FFE8CC 100%);
-        border-bottom: 2px solid #FFB088;
+        background: linear-gradient(135deg, #fffbf0 0%, #fff8ed 100%);
+        border-bottom: 2px solid #FFD4A3;
         padding: 14px 20px;
       }
 
@@ -520,6 +520,65 @@
     </style>
   </head>
   <body>
+    <!-- ログインモーダル -->
+    <div id="login-modal" style="display:none; position:fixed; inset:0; z-index:100;
+         background:rgba(0,0,0,0.55); align-items:center; justify-content:center; padding:16px;">
+      <div style="background:white; border-radius:20px; padding:28px 24px; max-width:340px; width:100%;
+                  box-shadow:0 20px 60px rgba(0,0,0,0.25); text-align:center;">
+
+        <!-- Step 1: ログイン促す -->
+        <div id="modal-step1">
+          <div style="font-size:2.4rem; margin-bottom:8px;">🔐</div>
+          <h2 style="font-size:1.15rem; font-weight:800; color:#3D405B; margin-bottom:10px;">
+            ログインが必要です
+          </h2>
+          <p style="font-size:0.825rem; color:#78716c; line-height:1.65; margin-bottom:10px;">
+            AIバージョンを使うには<br>
+            <strong>Claude.aiへのログイン</strong>が必要です。<br>
+            無料プランでも使えます。
+          </p>
+          <p style="font-size:0.78rem; color:#92400e; line-height:1.6; margin-bottom:20px;
+                    background:#fffbeb; border-radius:8px; padding:10px 12px; text-align:left;">
+            💡 <strong>ログイン完了の確認方法：</strong><br>
+            claude.ai を開いて「こんにちは、〇〇さん」や会話画面が表示されたらログイン完了です。そのウィンドウを閉じてください。
+          </p>
+          <button onclick="openLoginPopup()"
+            style="display:block; width:100%; padding:14px; margin-bottom:16px;
+                   background:linear-gradient(135deg,#FF8C42,#E07A5F); color:white;
+                   font-size:0.95rem; font-weight:700; border:none; border-radius:12px;
+                   cursor:pointer; box-shadow:0 4px 12px rgba(255,140,66,0.35);">
+            Claude.ai でログインする ↗
+          </button>
+          <button onclick="closeLoginModal()"
+            style="background:none; border:none; color:#B89880; font-size:0.8rem; cursor:pointer;">
+            後で → 閉じる
+          </button>
+        </div>
+
+        <!-- Step 2: ポップアップが閉じたら表示 -->
+        <div id="modal-step2" style="display:none;">
+          <div style="font-size:2.4rem; margin-bottom:8px;">✅</div>
+          <h2 style="font-size:1.15rem; font-weight:800; color:#3D405B; margin-bottom:10px;">
+            ログインできましたか？
+          </h2>
+          <p style="font-size:0.825rem; color:#78716c; line-height:1.65; margin-bottom:20px;">
+            ログインが完了したら<br>下のボタンでアプリを開いてください。
+          </p>
+          <button onclick="openApp()"
+            style="display:block; width:100%; padding:14px; margin-bottom:16px;
+                   background:linear-gradient(135deg,#FF8C42,#E07A5F); color:white;
+                   font-size:0.95rem; font-weight:700; border:none; border-radius:12px;
+                   cursor:pointer; box-shadow:0 4px 12px rgba(255,140,66,0.35);">
+            アプリを開く →
+          </button>
+          <button onclick="backToStep1()"
+            style="background:none; border:none; color:#B89880; font-size:0.8rem; cursor:pointer;">
+            ← ログインをやり直す
+          </button>
+        </div>
+
+      </div>
+    </div>
     <div class="header">
       <div class="header-content">
         <div class="logo-container">
@@ -549,13 +608,14 @@
       <div class="tabs">
         <button class="tab active" data-tab="demo" onclick="switchTab('demo')">
           <div class="tab-label">
-            <span>デモバージョン</span>
+            <span>お試し版</span>
           </div>
           <span class="tab-badge badge-no-login">ログイン不要</span>
         </button>
         <button class="tab" data-tab="ai" onclick="switchTab('ai')">
           <div class="tab-label">
             <span>AIバージョン</span>
+            <span style="font-size:10px; background:#FF8C42; color:white; border-radius:6px; padding:1px 6px; font-weight:700; margin-left:2px;">おすすめ</span>
           </div>
           <span class="tab-badge badge-login">ログイン必要</span>
         </button>
@@ -586,26 +646,7 @@
               <path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z"/>
               <line x1="6" y1="17" x2="18" y2="17"/>
             </svg>
-            <p class="action-label">ログイン状況に合わせてお選びください：</p>
-            <div class="action-buttons">
-              <a
-                href="https://claude.ai/public/artifacts/8c9b765f-4d4a-4b22-88ca-21bf43aa03e1"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="action-btn-primary"
-              >
-                ✅ ログイン済み・アプリを開く →
-              </a>
-              <a
-                href="https://claude.ai"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="action-btn-secondary"
-              >
-                Claude.ai でログインする →
-              </a>
-            </div>
-            <p class="action-note">※ 無料プランでもご利用いただけます</p>
+            <p class="action-label">AIタブをクリックするとログイン案内が表示されます</p>
           </div>
         </div>
 
@@ -613,17 +654,16 @@
         <div id="demo-content" class="tab-content active">
           <div class="demo-banner">
             <div class="info-title">
-              ✨ すぐに試せるデモバージョン
+              ✨ すぐに試せるお試し版
             </div>
             <div class="info-content">
               <strong>ログイン不要で、アプリの動作をすぐに体験できます。</strong>
               <ul class="info-steps">
-                <li>食材を選んでレシピを確認できます</li>
-                <li>アプリの使い方を試すのに最適です</li>
+                <li>約60品のレシピから選んだ食材に合ったものを提案します</li>
               </ul>
-              <div class="warning-box">
-                <strong>⚠️ ご注意</strong>
-                デモ版は固定のレシピパターンを使用しています。食材の相性や調理法は考慮されていません。本格的なレシピ提案には「AIバージョン」をご利用ください。
+              <div class="warning-box" style="border-left-color:#FF8C42; background:rgba(255,140,66,0.06);">
+                <strong style="color:#92400e;">✨ もっと本格的なレシピを試したいなら</strong>
+                「AIバージョン」では食材の相性・調理法まで考えた本格レシピをAIが提案します。無料プランで使えます。
               </div>
             </div>
           </div>
@@ -631,7 +671,7 @@
           <div class="app-frame">
             <iframe
               src="/demo.html"
-              title="れしぴくん - デモバージョン"
+              title="れしぴくん - お試し版"
               allowfullscreen>
             </iframe>
           </div>
@@ -640,6 +680,8 @@
     </div>
 
     <script>
+      const ARTIFACT_URL = 'https://claude.ai/public/artifacts/8c9b765f-4d4a-4b22-88ca-21bf43aa03e1';
+
       function switchTab(tabName) {
         const tabs = document.querySelectorAll('.tab');
         tabs.forEach(tab => tab.classList.remove('active'));
@@ -648,7 +690,63 @@
         const contents = document.querySelectorAll('.tab-content');
         contents.forEach(content => content.classList.remove('active'));
         document.getElementById(tabName + '-content').classList.add('active');
+
+        if (tabName === 'ai') {
+          showLoginModal();
+        }
       }
+
+      let popupPollInterval = null;
+
+      function showLoginModal() {
+        document.getElementById('login-modal').style.display = 'flex';
+        showStep(1);
+      }
+
+      function closeLoginModal() {
+        document.getElementById('login-modal').style.display = 'none';
+        stopPolling();
+      }
+
+      function showStep(n) {
+        document.getElementById('modal-step1').style.display = n === 1 ? 'block' : 'none';
+        document.getElementById('modal-step2').style.display = n === 2 ? 'block' : 'none';
+      }
+
+      function backToStep1() {
+        stopPolling();
+        showStep(1);
+      }
+
+      function stopPolling() {
+        if (popupPollInterval) {
+          clearInterval(popupPollInterval);
+          popupPollInterval = null;
+        }
+      }
+
+      function openLoginPopup() {
+        const popup = window.open('https://claude.ai', 'claudeLogin', 'width=480,height=660,popup=yes');
+        stopPolling();
+        popupPollInterval = setInterval(() => {
+          if (popup && popup.closed) {
+            stopPolling();
+            showStep(2);
+          }
+        }, 500);
+      }
+
+      function openApp() {
+        window.open(ARTIFACT_URL, '_blank', 'noopener,noreferrer');
+        closeLoginModal();
+      }
+
+      window.addEventListener('message', (e) => {
+        if (e.data === 'switchToAI') {
+          const aiTab = document.querySelector('.tab[data-tab="ai"]');
+          if (aiTab) aiTab.click();
+        }
+      });
     </script>
   </body>
 </html>
