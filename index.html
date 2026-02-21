@@ -537,10 +537,10 @@
             <strong>Claude.aiへのログイン</strong>が必要です。<br>
             無料プランでも使えます。
           </p>
-          <p style="font-size:0.78rem; color:#92400e; line-height:1.6; margin-bottom:20px;
+          <p id="login-hint" style="font-size:0.78rem; color:#92400e; line-height:1.6; margin-bottom:20px;
                     background:#fffbeb; border-radius:8px; padding:10px 12px; text-align:left;">
             💡 <strong>ログイン完了の確認方法：</strong><br>
-            Claude.aiのページが開きます。「こんにちは、〇〇さん」や会話画面が表示されたらログイン完了です。このページに戻ってきてください。
+            Claude.aiのページが開きます。「こんにちは、〇〇さん」のような画面が表示されたらログイン完了です。このページに戻ってきてください。
           </p>
           <button onclick="openLoginPopup()"
             style="display:block; width:100%; padding:14px; margin-bottom:16px;
@@ -682,6 +682,11 @@
     <script>
       const ARTIFACT_URL = 'https://claude.ai/public/artifacts/8c9b765f-4d4a-4b22-88ca-21bf43aa03e1';
 
+      // タッチデバイス（スマホ・タブレット）かどうかを判定
+      const isMobile = navigator.maxTouchPoints > 0;
+
+      let popupPollInterval = null;
+
       function switchTab(tabName) {
         const tabs = document.querySelectorAll('.tab');
         tabs.forEach(tab => tab.classList.remove('active'));
@@ -696,10 +701,12 @@
         }
       }
 
-      let popupPollInterval = null;
-      let visibilityHandler = null;
-
       function showLoginModal() {
+        // スマホ用: ヒントテキストを「戻るボタン」案内に変更
+        if (isMobile) {
+          const hint = document.getElementById('login-hint');
+          if (hint) hint.innerHTML = '💡 <strong>ログイン完了の確認方法：</strong><br>Claude.aiの画面で「こんにちは、〇〇さん」のような画面が表示されたらログイン完了です。ブラウザの「＜ 戻る」でこのページに戻ってきてください。';
+        }
         document.getElementById('login-modal').style.display = 'flex';
         showStep(1);
       }
@@ -707,7 +714,6 @@
       function closeLoginModal() {
         document.getElementById('login-modal').style.display = 'none';
         stopPolling();
-        removeVisibilityHandler();
       }
 
       function showStep(n) {
@@ -717,7 +723,6 @@
 
       function backToStep1() {
         stopPolling();
-        removeVisibilityHandler();
         showStep(1);
       }
 
@@ -728,45 +733,46 @@
         }
       }
 
-      function removeVisibilityHandler() {
-        if (visibilityHandler) {
-          document.removeEventListener('visibilitychange', visibilityHandler);
-          visibilityHandler = null;
-        }
-      }
-
       function openLoginPopup() {
-        const popup = window.open('https://claude.ai', 'claudeLogin', 'width=480,height=660,popup=yes');
-        stopPolling();
-        removeVisibilityHandler();
-
-        // PC: ポップアップが閉じたら検出
-        if (popup) {
-          popupPollInterval = setInterval(() => {
-            if (popup.closed) {
-              stopPolling();
-              removeVisibilityHandler();
-              showStep(2);
-            }
-          }, 500);
+        if (isMobile) {
+          // スマホ: 同タブでClaude.aiへ遷移。ブラウザ「戻る」でアプリに戻れる
+          sessionStorage.setItem('loginPending', '1');
+          window.location.href = 'https://claude.ai';
+        } else {
+          // PC: ポップアップで開いて閉じたら検出
+          const popup = window.open('https://claude.ai', 'claudeLogin', 'width=480,height=660,popup=yes');
+          stopPolling();
+          if (popup) {
+            popupPollInterval = setInterval(() => {
+              if (popup.closed) {
+                stopPolling();
+                showStep(2);
+              }
+            }, 500);
+          }
         }
-
-        // スマホ: 新タブから戻ってきたとき検出（1.5秒後に登録）
-        setTimeout(() => {
-          visibilityHandler = () => {
-            if (!document.hidden) {
-              stopPolling();
-              removeVisibilityHandler();
-              showStep(2);
-            }
-          };
-          document.addEventListener('visibilitychange', visibilityHandler);
-        }, 1500);
       }
 
       function openApp() {
-        window.open(ARTIFACT_URL, '_blank', 'noopener,noreferrer');
-        closeLoginModal();
+        if (isMobile) {
+          // スマホ: 同タブでアーティファクトへ遷移。ブラウザ「戻る」でアプリに戻れる
+          closeLoginModal();
+          window.location.href = ARTIFACT_URL;
+        } else {
+          window.open(ARTIFACT_URL, '_blank', 'noopener,noreferrer');
+          closeLoginModal();
+        }
+      }
+
+      // スマホでClaude.aiログインから「戻る」で戻ってきた場合: AIタブ＋STEP2を表示
+      if (isMobile && sessionStorage.getItem('loginPending')) {
+        sessionStorage.removeItem('loginPending');
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelector('.tab[data-tab="ai"]').classList.add('active');
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.getElementById('ai-content').classList.add('active');
+        document.getElementById('login-modal').style.display = 'flex';
+        showStep(2);
       }
 
       window.addEventListener('message', (e) => {
