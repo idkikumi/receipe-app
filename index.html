@@ -540,7 +540,7 @@
           <p style="font-size:0.78rem; color:#92400e; line-height:1.6; margin-bottom:20px;
                     background:#fffbeb; border-radius:8px; padding:10px 12px; text-align:left;">
             💡 <strong>ログイン完了の確認方法：</strong><br>
-            claude.ai を開いて「こんにちは、〇〇さん」や会話画面が表示されたらログイン完了です。そのウィンドウを閉じてください。
+            Claude.aiのページが開きます。「こんにちは、〇〇さん」や会話画面が表示されたらログイン完了です。このページに戻ってきてください。
           </p>
           <button onclick="openLoginPopup()"
             style="display:block; width:100%; padding:14px; margin-bottom:16px;
@@ -697,6 +697,7 @@
       }
 
       let popupPollInterval = null;
+      let visibilityHandler = null;
 
       function showLoginModal() {
         document.getElementById('login-modal').style.display = 'flex';
@@ -706,6 +707,7 @@
       function closeLoginModal() {
         document.getElementById('login-modal').style.display = 'none';
         stopPolling();
+        removeVisibilityHandler();
       }
 
       function showStep(n) {
@@ -715,6 +717,7 @@
 
       function backToStep1() {
         stopPolling();
+        removeVisibilityHandler();
         showStep(1);
       }
 
@@ -725,15 +728,40 @@
         }
       }
 
+      function removeVisibilityHandler() {
+        if (visibilityHandler) {
+          document.removeEventListener('visibilitychange', visibilityHandler);
+          visibilityHandler = null;
+        }
+      }
+
       function openLoginPopup() {
         const popup = window.open('https://claude.ai', 'claudeLogin', 'width=480,height=660,popup=yes');
         stopPolling();
-        popupPollInterval = setInterval(() => {
-          if (popup && popup.closed) {
-            stopPolling();
-            showStep(2);
-          }
-        }, 500);
+        removeVisibilityHandler();
+
+        // PC: ポップアップが閉じたら検出
+        if (popup) {
+          popupPollInterval = setInterval(() => {
+            if (popup.closed) {
+              stopPolling();
+              removeVisibilityHandler();
+              showStep(2);
+            }
+          }, 500);
+        }
+
+        // スマホ: 新タブから戻ってきたとき検出（1.5秒後に登録）
+        setTimeout(() => {
+          visibilityHandler = () => {
+            if (!document.hidden) {
+              stopPolling();
+              removeVisibilityHandler();
+              showStep(2);
+            }
+          };
+          document.addEventListener('visibilitychange', visibilityHandler);
+        }, 1500);
       }
 
       function openApp() {
