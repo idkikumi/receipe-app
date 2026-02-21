@@ -765,15 +765,25 @@
       }
 
       // スマホでClaude.aiログインから「戻る」で戻ってきた場合: AIタブ＋STEP2を表示
-      if (isMobile && sessionStorage.getItem('loginPending')) {
-        sessionStorage.removeItem('loginPending');
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelector('.tab[data-tab="ai"]').classList.add('active');
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        document.getElementById('ai-content').classList.add('active');
-        document.getElementById('login-modal').style.display = 'flex';
-        showStep(2);
+      function restoreAfterLogin() {
+        if (isMobile && sessionStorage.getItem('loginPending')) {
+          sessionStorage.removeItem('loginPending');
+          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          document.querySelector('.tab[data-tab="ai"]').classList.add('active');
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+          document.getElementById('ai-content').classList.add('active');
+          document.getElementById('login-modal').style.display = 'flex';
+          showStep(2);
+        }
       }
+
+      // 通常のページロード時
+      restoreAfterLogin();
+
+      // bfcache（ブラウザ「戻る」ボタン）からの復元時にも実行
+      window.addEventListener('pageshow', (e) => {
+        if (e.persisted) restoreAfterLogin();
+      });
 
       window.addEventListener('message', (e) => {
         if (e.data === 'switchToAI') {
