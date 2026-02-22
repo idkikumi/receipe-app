@@ -1,5 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-  <!-- Chef hat filled orange, matching the app icon -->
-  <path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z" fill="#FF8C42"/>
-  <rect x="5.5" y="16" width="13" height="2" rx="1" fill="#CC6A30"/>
+  <!-- Warm cream background, matching app -->
+  <rect width="24" height="24" fill="#FFF4E6"/>
+  <!-- Chef hat - outline style, matching app icon -->
+  <path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z" fill="none" stroke="#FF8C42" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="6" y1="17" x2="18" y2="17" stroke="#FF8C42" stroke-width="2" stroke-linecap="round"/>
 </svg>
