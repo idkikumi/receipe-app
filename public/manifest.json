@@ -1,0 +1,16 @@
+{
+  "name": "れしぴくん",
+  "short_name": "れしぴくん",
+  "description": "選んだ食材からおいしいレシピを提案するアプリ",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFF8F0",
+  "theme_color": "#FF8C42",
+  "icons": [
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}
