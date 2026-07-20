@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>れしぴくん AI版モック（切り替え式）</title>
+<!--
+  ============================================================
+  これはデザイン検討用のモックです（2026-07-20作成）。
+  画面上部の固定バー（案の切り替え・状態の切り替え）は
+  モック専用で、本番には入りません。
+  API呼び出しは行わず、すべて見た目のシミュレーションです。
+  計画の正本: receipe-app/project-docs/api-plan-2026-07-20.md
+  ============================================================
+-->
+<script src="https://cdn.jsdelivr.net/npm/tailwindcss-cdn@3.4.1/tailwindcss.js"></script>
+<style>
+  body { margin:0; }
+  /* ---- モックバー ---- */
+  #mockbar { position:fixed; top:0; left:0; right:0; z-index:50; background:#3D405B; color:#fff; padding:8px 12px; font-size:13px; }
+  #mockbar button { border-radius:9999px; padding:4px 14px; margin:2px; border:1px solid rgba(255,255,255,.4); background:transparent; color:#fff; cursor:pointer; font-size:12px; }
+  #mockbar button.on { background:#FF8C42; border-color:#FF8C42; font-weight:bold; }
+  #mockdesc { font-size:11px; opacity:.85; margin-top:2px; }
+  .stage { padding-top:96px; }
+
+  /* ---- 案×状態の表示制御 ----
+     body に v-current / v-a / v-b と s-idle / s-loading / s-result / s-limit を付ける */
+  .only-a, .only-b, .only-current { display:none; }
+  body.v-a .only-a { display:block; }
+  body.v-b .only-b { display:block; }
+  body.v-current .only-current { display:block; }
+  .st { display:none; }
+  body.s-idle .st-idle { display:block; }
+  body.s-loading .st-loading { display:block; }
+  body.s-result .st-result { display:block; }
+  body.s-limit .st-limit { display:block; }
+  /* 現状（デモ版）はAPI状態がないので常に結果例を表示 */
+  body.v-current .st { display:none; }
+  body.v-current .st-current { display:block !important; }
+
+  /* ---- 共通アニメーション ---- */
+  @keyframes fadeIn { from{opacity:0; transform:translateY(20px);} to{opacity:1; transform:translateY(0);} }
+  .animate-fadeIn { animation: fadeIn .5s ease-out forwards; opacity:0; }
+  @keyframes blink { 0%,80%,100%{opacity:.2;} 40%{opacity:1;} }
+  .dot { display:inline-block; width:8px; height:8px; border-radius:9999px; background:#FF8C42; margin:0 2px; animation:blink 1.2s infinite; }
+  .dot:nth-child(2){ animation-delay:.2s; } .dot:nth-child(3){ animation-delay:.4s; }
+  @keyframes shimmer { 0%{background-position:-400px 0;} 100%{background-position:400px 0;} }
+  .skeleton { background:linear-gradient(90deg,#FFF3E4 25%,#FFE8CF 37%,#FFF3E4 63%); background-size:800px 100%; animation:shimmer 1.4s infinite linear; border-radius:12px; }
+
+  /* ---- B案トークン ---- */
+  body.v-b .app-bg { background:linear-gradient(160deg,#FFF8F0 0%,#FFEFDD 45%,#FFE4C4 100%); }
+  body.v-b .card { border-radius:24px; box-shadow:0 4px 24px rgba(180,100,60,.10); }
+  body.v-b .recipe-card { border-radius:20px; border:1px solid #FFD9AE; box-shadow:0 4px 24px rgba(180,100,60,.08); }
+</style>
+</head>
+<body class="v-a s-idle">
+
+<!-- ===== モック専用バー（本番には入らない） ===== -->
+<div id="mockbar">
+  <div class="flex flex-wrap items-center gap-x-3">
+    <span class="font-bold">案:</span>
+    <button data-v="v-current" onclick="setV(this)">現状（デモ版）</button>
+    <button data-v="v-a" class="on" onclick="setV(this)">A案 現行トーン踏襲</button>
+    <button data-v="v-b" onclick="setV(this)">B案 今風アレンジ</button>
+    <span class="font-bold ml-4">状態:</span>
+    <button data-s="s-idle" class="on" onclick="setS(this)">入力前</button>
+    <button data-s="s-loading" onclick="setS(this)">AIが考え中</button>
+    <button data-s="s-result" onclick="setS(this)">提案結果</button>
+    <button data-s="s-limit" onclick="setS(this)">上限到達</button>
+  </div>
+  <div id="mockdesc">A案: 今のデモ版の見た目をそのまま活かし、AI提案に必要な部品（考え中表示・AIのひとこと・残り回数）だけを足した堅実案。</div>
+</div>
+
+<div class="stage app-bg min-h-screen w-full bg-gradient-to-br from-orange-50 via-yellow-50 to-orange-100 p-4 md:p-6">
+  <div class="max-w-7xl mx-auto w-full">
+
+    <!-- ヘッダー -->
+    <div class="text-center mb-6">
+      <div class="flex items-center justify-center mb-2">
+        <span class="text-3xl mr-2">👨‍🍳</span>
+        <h1 class="text-2xl md:text-4xl font-bold text-gray-800">れしぴくん</h1>
+        <span class="only-a only-b ml-3 bg-orange-100 text-orange-700 text-xs font-bold px-3 py-1 rounded-full border border-orange-200">AIシェフ搭載</span>
+      </div>
+      <p class="text-gray-600 text-sm">選んだ食材から、AIがあなただけのレシピを考えます</p>
+      <!-- 残り回数（A案・B案共通の保険表示） -->
+      <p class="only-a only-b mt-1 text-xs text-gray-400">今日の提案 あと <span class="font-bold text-orange-500">18</span> 回（毎日リセット）</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:items-start">
+
+      <!-- ===== 左: 食材選択（全案共通・現行踏襲） ===== -->
+      <div class="card bg-white rounded-xl shadow-lg p-5 md:p-6">
+        <h2 class="text-xl font-semibold mb-3 text-gray-800">🥬 食材を選択</h2>
+        <p class="text-xs text-orange-600 bg-orange-50 rounded-lg px-3 py-2 mb-4">💡 3〜5個選ぶとベストなマッチングになります</p>
+        <div class="flex flex-wrap gap-2 mb-6">
+          <span class="px-3 py-2 rounded-lg text-sm bg-gray-100 text-gray-400">トマト</span>
+          <span class="px-3 py-2 rounded-lg text-sm bg-yellow-50 text-yellow-800">玉ねぎ</span>
+          <span class="px-3 py-2 rounded-lg text-sm bg-gray-100 text-gray-400">チーズ</span>
+          <span class="px-3 py-2 rounded-lg text-sm bg-yellow-50 text-yellow-800">きのこ</span>
+          <span class="px-3 py-2 rounded-lg text-sm bg-yellow-50 text-yellow-800">なす</span>
+          <span class="px-3 py-2 rounded-lg text-sm bg-yellow-50 text-yellow-800">サーモン</span>
+          <span class="px-3 py-2 rounded-lg text-sm bg-yellow-50 text-yellow-800">ブロッコリー</span>
+        </div>
+        <div class="mb-6">
+          <h3 class="text-sm font-medium text-gray-600 mb-2">その他の食材:</h3>
+          <div class="flex gap-2">
+            <input type="text" placeholder="食材名を入力（AIならなんでもOK）" class="flex-1 p-3 text-base border border-gray-300 rounded-lg" />
+            <span class="px-4 py-3 bg-orange-600 text-white rounded-lg font-bold">＋</span>
+          </div>
+          <p class="only-a only-b mt-2 text-xs text-gray-400">珍しい食材も入力OK。AIがその食材を活かす方法を考えます。</p>
+        </div>
+        <div class="mb-6">
+          <h3 class="text-sm font-medium text-gray-600 mb-2">選択中の食材:</h3>
+          <div class="flex flex-wrap gap-2">
+            <span class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm">トマト ×</span>
+            <span class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm">チーズ ×</span>
+            <span class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm">バジル ×</span>
+          </div>
+        </div>
+        <div class="mb-6">
+          <h3 class="text-sm font-medium text-gray-600 mb-2">料理カテゴリー:</h3>
+          <div class="grid grid-cols-2 gap-3">
+            <span class="p-3 rounded-lg text-center font-medium bg-orange-600 text-white shadow-lg">前菜</span>
+            <span class="p-3 rounded-lg text-center font-medium bg-gray-100 text-gray-700">主菜</span>
+          </div>
+        </div>
+
+        <!-- 生成ボタン: 案ごとに文言が変わる -->
+        <div class="only-current">
+          <div class="w-full bg-gradient-to-r from-orange-600 to-orange-700 text-white font-bold py-4 px-6 rounded-lg text-center">🍽️ レシピを提案してもらう</div>
+        </div>
+        <div class="only-a">
+          <div class="w-full bg-gradient-to-r from-orange-600 to-orange-700 text-white font-bold py-4 px-6 rounded-lg text-center">✨ AIシェフにレシピを考えてもらう</div>
+        </div>
+        <div class="only-b">
+          <div class="w-full bg-gradient-to-r from-orange-500 to-rose-400 text-white font-bold py-4 px-6 rounded-full text-center shadow-lg">✨ AIシェフにおまかせする</div>
+        </div>
+        <div class="w-full bg-gray-200 text-gray-700 font-medium py-3 px-6 rounded-lg text-center mt-3">🔄 リセット</div>
+      </div>
+
+      <!-- ===== 右: 結果パネル（案×状態で変化） ===== -->
+      <div class="card bg-white rounded-xl shadow-lg p-5 md:p-6 min-h-[500px]">
+        <h2 class="text-xl font-semibold mb-4 text-gray-800">🍽️ おすすめのレシピ</h2>
+
+        <!-- 現状（デモ版）: 固定DBの結果 -->
+        <div class="st st-current only-current">
+          <div class="recipe-card bg-white border-2 border-orange-200 rounded-xl p-5 shadow-lg mb-4">
+            <div class="border-b border-orange-100 pb-3 mb-3">
+              <span class="bg-orange-600 text-white px-3 py-1 rounded-full text-sm font-bold">レシピ 1</span>
+              <h3 class="text-lg font-bold text-gray-800 mt-2">トマトとチーズのカプレーゼ</h3>
+            </div>
+            <p class="text-sm text-gray-600">※デモ版はあらかじめ用意した70種類のレシピから選ばれます（毎回同じ結果）。</p>
+          </div>
+          <p class="text-xs text-gray-400">← 上のバーでA案・B案に切り替えると、AI提案版の画面になります。</p>
+        </div>
+
+        <!-- 入力前 -->
+        <div class="st st-idle">
+          <div class="text-center py-12 text-gray-500">
+            <div class="text-5xl mb-4">👨‍🍳</div>
+            <p class="text-sm">食材と料理カテゴリーを選んで</p>
+            <p class="text-sm only-a">「AIシェフにレシピを考えてもらう」を押してください</p>
+            <p class="text-sm only-b">「AIシェフにおまかせする」を押してください</p>
+            <p class="text-xs text-gray-400 mt-4">毎回、選んだ食材に合わせた新しいレシピが届きます</p>
+          </div>
+        </div>
+
+        <!-- AIが考え中: A案=メッセージ切り替え / B案=吹き出し＋スケルトン -->
+        <div class="st st-loading">
+          <div class="only-a">
+            <div class="text-center py-12">
+              <div class="mb-4"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+              <p class="text-sm text-gray-600 font-medium">AIシェフが考えています...</p>
+              <p class="text-xs text-gray-400 mt-2">トマト・チーズ・バジルの組み合わせを検討中 🍅</p>
+              <p class="text-xs text-gray-300 mt-6">だいたい10秒ほどで3つのレシピが届きます</p>
+            </div>
+          </div>
+          <div class="only-b">
+            <div class="bg-orange-50 rounded-2xl p-4 mb-4 flex items-start">
+              <span class="text-2xl mr-3">👨‍🍳</span>
+              <div>
+                <p class="text-sm text-gray-700 font-medium">トマトとチーズとバジル、いい組み合わせですね。</p>
+                <p class="text-sm text-gray-500 mt-1">3つほど考えてみます <span class="dot"></span><span class="dot"></span><span class="dot"></span></p>
+              </div>
+            </div>
+            <div class="skeleton h-28 mb-3"></div>
+            <div class="skeleton h-28 mb-3" style="animation-delay:.2s"></div>
+            <div class="skeleton h-28" style="animation-delay:.4s"></div>
+          </div>
+        </div>
+
+        <!-- 提案結果 -->
+        <div class="st st-result">
+          <!-- レシピ1 -->
+          <div class="recipe-card bg-white border-2 border-orange-200 rounded-xl p-5 shadow-lg mb-5 animate-fadeIn">
+            <div class="border-b border-orange-100 pb-3 mb-3">
+              <div class="flex items-center justify-between flex-wrap gap-2 mb-2">
+                <span class="bg-orange-600 text-white px-3 py-1 rounded-full text-sm font-bold">レシピ 1</span>
+                <div class="flex gap-2">
+                  <span class="bg-orange-50 text-gray-700 px-2 py-1 rounded text-xs font-medium">10分</span>
+                  <span class="bg-orange-50 text-gray-700 px-2 py-1 rounded text-xs font-medium">★☆☆ 簡単</span>
+                </div>
+              </div>
+              <h3 class="text-lg font-bold text-gray-800">焼きトマトのとろけるカプレーゼ</h3>
+            </div>
+            <!-- AIのひとこと: AI版の新要素 -->
+            <div class="only-a bg-amber-50 border-l-4 border-orange-300 rounded-r-lg px-3 py-2 mb-3">
+              <p class="text-xs text-gray-600"><span class="font-bold text-orange-600">AIシェフのひとこと:</span> 定番のカプレーゼをひと工夫。トマトを軽く焼くと甘みが増して、チーズのとろけ方も変わります。</p>
+            </div>
+            <div class="only-b bg-orange-50 rounded-2xl px-4 py-3 mb-3 flex items-start">
+              <span class="text-xl mr-2">👨‍🍳</span>
+              <p class="text-xs text-gray-600">定番のカプレーゼをひと工夫。トマトを軽く焼くと甘みが増して、チーズのとろけ方も変わりますよ。</p>
+            </div>
+            <div class="mb-4">
+              <h4 class="text-base font-semibold text-gray-700 mb-2">🥘 材料（2人前）</h4>
+              <div class="bg-orange-50 rounded-lg p-3">
+                <ul class="space-y-1 text-sm text-gray-700">
+                  <li>• トマト 2個</li>
+                  <li>• チーズ（モッツァレラ等）100g</li>
+                  <li>• バジル 適量</li>
+                  <li>• オリーブオイル 大さじ2 / 塩・黒こしょう 少々</li>
+                </ul>
+              </div>
+            </div>
+            <div>
+              <h4 class="text-base font-semibold text-gray-700 mb-2">👨‍🍳 作り方</h4>
+              <div class="space-y-2 text-sm text-gray-700">
+                <div class="flex items-start"><span class="bg-orange-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 flex-shrink-0">1</span><p>トマトを1cm幅の輪切りにし、フライパンで両面をさっと焼きます。</p></div>
+                <div class="flex items-start"><span class="bg-orange-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 flex-shrink-0">2</span><p>焼きたてのトマトにチーズをのせ、余熱で軽くとろけさせます。</p></div>
+                <div class="flex items-start"><span class="bg-orange-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 flex-shrink-0">3</span><p>オリーブオイルと塩・黒こしょうをかけ、バジルを飾って完成。</p></div>
+              </div>
+            </div>
+          </div>
+          <!-- レシピ2・3は省略表示（モックのため） -->
+          <div class="recipe-card bg-white border-2 border-orange-200 rounded-xl p-5 shadow mb-5 animate-fadeIn" style="animation-delay:.15s">
+            <span class="bg-orange-600 text-white px-3 py-1 rounded-full text-sm font-bold">レシピ 2</span>
+            <h3 class="text-lg font-bold text-gray-800 mt-2">トマトとバジルの冷製おひたし</h3>
+            <p class="text-xs text-gray-400 mt-2">（モックのため中身は省略。実物はレシピ1と同じ構成で3つ並びます）</p>
+          </div>
+          <div class="recipe-card bg-white border-2 border-orange-200 rounded-xl p-5 shadow mb-5 animate-fadeIn" style="animation-delay:.3s">
+            <span class="bg-orange-600 text-white px-3 py-1 rounded-full text-sm font-bold">レシピ 3</span>
+            <h3 class="text-lg font-bold text-gray-800 mt-2">チーズ入りトマトの肉巻き</h3>
+            <p class="text-xs text-gray-400 mt-2">（同上）</p>
+          </div>
+          <!-- 再提案ボタン: AI版の新要素 -->
+          <div class="only-a">
+            <div class="w-full border-2 border-orange-300 text-orange-600 font-bold py-3 px-6 rounded-lg text-center bg-white">🔁 別の3つを考えてもらう</div>
+          </div>
+          <div class="only-b">
+            <div class="w-full border-2 border-orange-300 text-orange-600 font-bold py-3 px-6 rounded-full text-center bg-white">🔁 別の3つを考えてもらう</div>
+          </div>
+        </div>
+
+        <!-- 上限到達 -->
+        <div class="st st-limit">
+          <div class="text-center py-12">
+            <div class="text-5xl mb-4">🌙</div>
+            <p class="text-base font-bold text-gray-700 mb-2">AIシェフは今日はお休みに入りました</p>
+            <p class="text-sm text-gray-500">本日の提案回数が上限に達しました。<br>また明日、遊びにきてくださいね。</p>
+            <div class="only-a only-b mt-6 inline-block bg-orange-50 rounded-lg px-4 py-3 text-left">
+              <p class="text-xs text-gray-500">それまでは <span class="font-bold text-orange-600">デモ版</span>（定番レシピ70種）が使えます →</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const descs = {
+  'v-current': '現状: 公開中のデモ版。固定の70レシピから選ぶため毎回同じ結果になる。比較の基準として表示。',
+  'v-a': 'A案: 今のデモ版の見た目をそのまま活かし、AI提案に必要な部品（考え中表示・AIのひとこと・残り回数）だけを足した堅実案。',
+  'v-b': 'B案: AIシェフを「話しかけてくる相棒」として演出する今風案。吹き出し・スケルトン表示・ピル形ボタンで生成AIらしい柔らかさを出す。'
+};
+function setV(btn){
+  document.body.classList.remove('v-current','v-a','v-b');
+  document.body.classList.add(btn.dataset.v);
+  document.querySelectorAll('[data-v]').forEach(b=>b.classList.toggle('on', b===btn));
+  document.getElementById('mockdesc').textContent = descs[btn.dataset.v];
+}
+function setS(btn){
+  document.body.classList.remove('s-idle','s-loading','s-result','s-limit');
+  document.body.classList.add(btn.dataset.s);
+  document.querySelectorAll('[data-s]').forEach(b=>b.classList.toggle('on', b===btn));
+}
+</script>
+</body>
+</html>
